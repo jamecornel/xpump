@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  telegramId        BigInt              @unique
+  username          String?
+  firstName         String?
+  lastName          String?
+  isPremium         Boolean             @default(false)
+  referralCode      String              @unique
+  languageCode      String?
+  photoUrl          String?
+  referredByCode    String?
+  walletAddress     String?
+  walletSeed        String? // Encrypted seed
+  walletType        WalletType? // CREATED or IMPORTED
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  createdTokens     Token[]             @relation("CreatedTokens")
+  transactions      Transaction[]
+  followers         Follow[]            @relation("Following")
+  following         Follow[]            @relation("Followers")
+  notes             CommunityNote[]
+  portfolio         Portfolio[]
+  LiquidityPosition LiquidityPosition[]
+  SwapTransaction   SwapTransaction[]
+  Order             Order[]
+  TradeHistory      TradeHistory[]
+}
+
+enum WalletType {
+  CREATED
+  IMPORTED
+}
+
+model Token {
+  id              Int             @id @default(autoincrement())
+  name            String
+  symbol          String          @unique
+  totalSupply     Decimal
+  description     String?
+  telegramChat    String?
+  telegramChannel String?
+  website         String?
+  twitter         String?
+  creatorId       Int
+  creator         User            @relation("CreatedTokens", fields: [creatorId], references: [id])
+  issuerAddress   String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  marketCap       Decimal         @default(0)
+  price           Decimal         @default(0)
+  notes           CommunityNote[]
+  LiquidityPool   LiquidityPool[]
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  type        TxType
+  amount      Decimal
+  tokenAmount Decimal
+  price       Decimal
+  tokenId     Int
+  userId      Int
+  timestamp   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([tokenId])
+  @@index([userId])
+}
+
+model Portfolio {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenId   Int
+  amount    Decimal
+  user      User     @relation(fields: [userId], references: [id])
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, tokenId])
+}
+
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User     @relation("Following", fields: [followerId], references: [id])
+  following   User     @relation("Followers", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model CommunityNote {
+  id        Int      @id @default(autoincrement())
+  content   String
+  userId    Int
+  tokenId   Int
+  helpful   Int      @default(0)
+  unhelpful Int      @default(0)
+  user      User     @relation(fields: [userId], references: [id])
+  token     Token    @relation(fields: [tokenId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum TxType {
+  BUY
+  SELL
+  DEPLOY
+}
+
+model LiquidityPool {
+  id            Int                 @id @default(autoincrement())
+  tokenId       Int
+  token         Token               @relation(fields: [tokenId], references: [id])
+  ammAddress    String
+  xrpReserve    String              @default("0")
+  tokenReserve  String              @default("0")
+  totalLPTokens String              @default("0")
+  marketCap     Decimal             @default(0)
+  liquidity     Decimal             @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  positions     LiquidityPosition[]
+  swaps         SwapTransaction[]
+  Order         Order[]
+  TradeHistory  TradeHistory[]
+}
+
+model LiquidityPosition {
+  id          Int           @id @default(autoincrement())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  poolId      Int
+  pool        LiquidityPool @relation(fields: [poolId], references: [id])
+  xrpAmount   String
+  tokenAmount String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([poolId])
+}
+
+model SwapTransaction {
+  id         Int           @id @default(autoincrement())
+  userId     Int
+  user       User          @relation(fields: [userId], references: [id])
+  poolId     Int
+  pool       LiquidityPool @relation(fields: [poolId], references: [id])
+  fromToken  String
+  toToken    String
+  fromAmount String
+  toAmount   String
+  timestamp  DateTime
+
+  @@index([userId])
+  @@index([poolId])
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  userId       Int
+  poolId       Int
+  side         OrderSide
+  amount       String // Base amount
+  price        String // Price in XRP
+  filledAmount String      @default("0")
+  status       OrderStatus
+  txHash       String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user User          @relation(fields: [userId], references: [id])
+  pool LiquidityPool @relation(fields: [poolId], references: [id])
+
+  @@index([userId])
+  @@index([poolId])
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  PENDING
+  FILLED
+  PARTIALLY_FILLED
+  CANCELLED
+  FAILED
+}
+
+model TradeHistory {
+  id        Int       @id @default(autoincrement())
+  poolId    Int
+  price     String // Price in XRP
+  amount    String // Amount of tokens
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  side      OrderSide
+  timestamp DateTime  @default(now())
+  txHash    String
+
+  pool LiquidityPool @relation(fields: [poolId], references: [id])
+
+  @@index([poolId])
+  @@index([timestamp])
+}

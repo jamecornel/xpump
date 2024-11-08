@@ -1,0 +1,47 @@
+services:
+  app:
+    expose:
+      - "8000"
+    build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.xpump.entrypoints=web"
+      - "traefik.http.routers.xpump.rule=Host(`x-pump.xyz`)"
+      - "traefik.http.routers.xpump-api.rule=Host(`x-pump.xyz`) && PathPrefix(`/api/v1`)"
+      - "traefik.http.services.xpump-api.loadbalancer.server.port=8000"
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - redis
+
+  redis:
+    image: "bitnami/redis:7.2"
+    restart: unless-stopped
+    ports:
+      - 6379
+    volumes:
+      - "redis_data:/bitnami/redis/data"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_IO_THREADS: 4
+      REDIS_IO_THREADS_DO_READS: yes
+      ALLOW_EMPTY_PASSWORD: yes
+    env_file:
+      - .env
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+volumes:
+  redis_data:
+    driver: local

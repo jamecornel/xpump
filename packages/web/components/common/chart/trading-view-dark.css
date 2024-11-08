@@ -1,0 +1,54 @@
+.chart-page {
+  background-color: #000000 !important;
+}
+
+.chart-markup-table {
+  background-color: #000000 !important;
+  height: 100% !important;
+}
+
+iframe {
+  background-color: #000000 !important;
+  height: 100% !important;
+}
+
+.chart-container {
+  background-color: #000000 !important;
+}
+
+.loading-indicator {
+  background-color: #000000 !important;
+}
+
+.tv-spinner {
+  --tv-color-platform-background: #000000;
+  --tv-color-platform-background-nested: #000000;
+}
+
+.chart-controls-bar {
+  background-color: #000000 !important;
+}
+
+.chart-controls-bar-buttons a {
+  color: #999999 !important;
+}
+
+.exchange-symbol-info {
+  color: #999999 !important;
+}
+
+.pane-legend {
+  background-color: transparent !important;
+}
+
+.pane-legend-item-value {
+  color: #999999 !important;
+}
+
+.pane-legend-line {
+  color: #999999 !important;
+}
+
+.pane-legend-title {
+  color: #999999 !important;
+}
