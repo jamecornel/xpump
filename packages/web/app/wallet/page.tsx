@@ -75,6 +75,15 @@ const Onboarding = () => {
                   alt="Copy"
                   width={24}
                   height={24}
+                  onClick={() => {
+                    if (user?.walletAddress) {
+                      navigator.clipboard.writeText(user?.walletAddress);
+                      toast({
+                        description: "Copied to clipboard",
+                        duration: 2000,
+                      });
+                    }
+                  }}
                 />
               </div>
             </div>
