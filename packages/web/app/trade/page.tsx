@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import useApi from "@/hooks/useApi";
 import { cn } from "@/lib/utils";
+import { formatNumberString } from "@/utils/utils";
 import { initBackButton } from "@telegram-apps/sdk-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -59,7 +60,7 @@ const Trade = () => {
             </div>
             <div className="mc text-[#adadad]  text-sm leading-6">MC</div>
             <div className="_38k text-white  text-sm font-semibold leading-6">
-              $38K
+              ${formatNumberString(poolApi?.data?.marketCap)}
             </div>
           </div>
           <div className="frame_7 flex flex-col items-start self-stretch relative">
