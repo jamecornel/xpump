@@ -23,7 +23,7 @@ export function ErrorPage({
         onClick={() => {
           window.open("https://x-pump.xyz", "_blank");
         }}
-        className="w-fit px-4 capitalize text-white"
+        className="w-fit px-4 capitalize text-white bg-primary"
       >
         Go to App
       </Button>
