@@ -219,7 +219,8 @@ export class AMMTradingService {
         },
       });
       // Calculate and update market cap
-      const marketCap = new BigNumber(executedPrice).multipliedBy(amount);
+      const priceInXrp = poolXrp.dividedBy(poolToken);
+      const marketCap = priceInXrp.multipliedBy(0.55);
       await this.prismaService.liquidityPool.update({
         where: { id: poolId },
         data: {
