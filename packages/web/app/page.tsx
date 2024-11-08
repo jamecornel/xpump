@@ -146,7 +146,7 @@ const HomePage = () => {
                   />
 
                   <div className="flex flex-col items-center gap-2 self-stretch z-10 py-4 w-full items-center">
-                    <Avatar className="w-16 h-16">
+                    <Avatar className="w-16 h-16 rounded-lg">
                       <AvatarImage src="/images/avatar.png" />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
