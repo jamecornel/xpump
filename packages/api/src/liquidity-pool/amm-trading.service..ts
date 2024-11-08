@@ -162,9 +162,6 @@ export class AMMTradingService {
         xrpAmount = xrpAmount
           .multipliedBy(this.SLIPPAGE_MULTIPLIER)
           .dp(3, BigNumber.ROUND_FLOOR);
-
-        console.log('xrpAmount', xrpAmount.toNumber());
-        console.log('tokenAmount', tokenAmount.toNumber());
       }
       const order = await this.prismaService.order.create({
         data: {
@@ -220,7 +217,8 @@ export class AMMTradingService {
       });
       // Calculate and update market cap
       const priceInXrp = poolXrp.dividedBy(poolToken);
-      const marketCap = priceInXrp.multipliedBy(0.55);
+      const priceInUsd = priceInXrp.multipliedBy(0.55);
+      const marketCap = priceInUsd.multipliedBy(poolToken);
       await this.prismaService.liquidityPool.update({
         where: { id: poolId },
         data: {
